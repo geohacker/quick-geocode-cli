@@ -1,7 +1,7 @@
 var argv = require('minimist')(process.argv.slice(2));
 var request = require('request');
 var fs = require('fs');
-var OPENCAGE_KEY = 'b259e2552bcc6545f684920858777172';
+var OPENCAGE_KEY = '3792f9984d6741803b6c523c51fb58f2';
 var OPENCAGE_API_BASE = 'http://api.opencagedata.com/geocode/v1/json';
 
 function openCage(query, callback) {
@@ -50,10 +50,12 @@ function openCage(query, callback) {
 function runGeocoder(filename, bbox, confidence) {
     var rows = fs.readFileSync(filename, {'encoding': 'utf-8'});
     var rowArray = rows.split('\n');
+    var outputFilename = filename.split('.')[0] + '-results.csv';
     rowArray.forEach(function (row) {
         openCage({'name': row, 'bbox': bbox, 'confidence': argv.confidence}, function(err, result) {
             result.forEach(function(r) {
-                console.log(r.join(','))
+                var line = r.join(',') + '\n';
+                fs.appendFileSync(outputFilename, line, 'utf-8');
             })
         });
     });
