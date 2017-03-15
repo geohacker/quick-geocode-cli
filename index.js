@@ -21,27 +21,29 @@ function openCage(query, callback) {
         var results = body.results;
         var data = [];
         var relevant = [];
-        if (results.length > 1) {
-            results.forEach(function(r) {
-                if (r.confidence >= query.confidence) {
-                    relevant.push(r);
+        if (results.length) {
+            if (results.length > 1) {
+                results.forEach(function(r) {
+                    if (r.confidence >= query.confidence) {
+                        relevant.push(r);
+                    }
+                });
+            } else {
+                relevant.push(results[0]);
+            }
+
+            relevant.forEach(function(rel) {
+                if (rel.annotations.OSM.edit_url) {
+                    var osmLink = rel.annotations.OSM.edit_url;
+                    var osmId = osmLink.split('?')[1].split('#')[0].split('=');
+                    osmId.push(query.name);
+                    osmId.push('https://openstreetmap.org/'+osmId[0]+'/'+osmId[1]);
+                    data.push(osmId);
                 }
             });
-        } else {
-            relevant.push(results[0]);
-        }
 
-        relevant.forEach(function(rel) {
-            if (rel.annotations.OSM.edit_url) {
-                var osmLink = rel.annotations.OSM.edit_url;
-                var osmId = osmLink.split('?')[1].split('#')[0].split('=');
-                osmId.push(query.name);
-                osmId.push('https://openstreetmap.org/'+osmId[0]+'/'+osmId[1]);
-                data.push(osmId); 
-            }
-        });
-                
-        callback(err, data);
+            callback(err, data);
+        }
     });
 }
 
